@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora de Calidad</title>
+<style>
+  body { font-family: Arial; background-color: #f4f4f4; margin: 20px; }
+  h1 { text-align: center; }
+  form { background: white; padding: 20px; border-radius: 10px; max-width: 900px; margin: auto; }
+  label { display: block; margin-top: 10px; }
+  input, select, textarea { width: 100%; padding: 5px; margin-top: 5px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  th, td { border: 1px solid #ccc; padding: 5px; text-align: center; }
+  th { background-color: #eee; }
+  button { margin-top: 15px; padding: 10px 15px; }
+</style>
+</head>
+<body>
+
+<h1>Bitácora de Calidad</h1>
+
+<form id="bitacoraForm">
+  <label for="usuario">Usuario:</label>
+  <input type="text" id="usuario" placeholder="Tu nombre" required>
+
+  <label for="turno">Turno:</label>
+  <select id="turno" required>
+    <option value="">Selecciona turno</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+  </select>
+
+  <label for="tipo">Tipo de registro:</label>
+  <select id="tipo" required>
+    <option value="">Selecciona tipo</option>
+    <option value="Incidente">Incidente</option>
+    <option value="Observación">Observación</option>
+    <option value="Paro">Paro</option>
+    <option value="Calidad">Calidad</option>
+  </select>
+
+  <label for="foto">Foto (obligatoria solo para Incidente):</label>
+  <input type="file" id="foto" accept="image/*">
+
+  <h3>Líneas de registro</h3>
+  <table id="lineasTabla">
+    <thead>
+      <tr>
+        <th>Número de Línea</th>
+        <th>Descripción</th>
+        <th>Observación</th>
+        <th>Prioridad</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Líneas se agregan dinámicamente -->
+    </tbody>
+  </table>
+  <button type="button" id="agregarLinea">Agregar Línea</button>
+
+  <button type="submit">Guardar Registro</button>
+</form>
+
+<script>
+const lineasTabla = document.querySelector('#lineasTabla tbody');
+
+// Función para agregar línea
+function agregarLinea() {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="number" placeholder="Número de línea" required></td>
+    <td><input type="text" placeholder="Descripción"></td>
+    <td><input type="text" placeholder="Observación"></td>
+    <td>
+      <select required>
+        <option value="">Selecciona prioridad</option>
+        <option value="Alta">Alta</option>
+        <option value="Media">Media</option>
+        <option value="Baja">Baja</option>
+      </select>
+    </td>
+  `;
+  lineasTabla.appendChild(tr);
+}
+
+// Agregar línea al presionar botón
+document.getElementById('agregarLinea').addEventListener('click', agregarLinea);
+
+// Enviar formulario
+document.getElementById('bitacoraForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const tipo = document.getElementById('tipo').value;
+  const foto = document.getElementById('foto').files;
+
+  if(tipo === "Incidente" && foto.length === 0) {
+    alert("Debes subir una foto para Incidente");
+    return;
+  }
+
+  const registro = {
+    usuario: document.getElementById('usuario').value,
+    turno: document.getElementById('turno').value,
+    tipo: tipo,
+    foto: foto.length ? foto[0].name : null,
+    lineas: []
+  };
+
+  const filas = lineasTabla.querySelectorAll('tr');
+  filas.forEach(fila => {
+    const numero = fila.cells[0].querySelector('input').value;
+    const descripcion = fila.cells[1].querySelector('input').value;
+    const observacion = fila.cells[2].querySelector('input').value;
+    const prioridad = fila.cells[3].querySelector('select').value;
+    registro.lineas.push({numero, descripcion, observacion, prioridad});
+  });
+
+  console.log("Registro guardado:", registro);
+  alert("Registro guardado (ver consola para datos)");
+  this.reset();
+  lineasTabla.innerHTML = ''; // Limpiar líneas
+});
+</script>
+
+</body>
+</html>
